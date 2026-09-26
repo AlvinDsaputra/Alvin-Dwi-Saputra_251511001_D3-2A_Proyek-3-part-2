@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Activity;
-use App\Services\ActivityService;
 use App\Http\Requests\StoreActivityRequest;
 use App\Http\Requests\UpdateActivityRequest;
-use Illuminate\View\View;
+use App\Models\Activity;
+use App\Services\ActivityService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ActivityController extends Controller
 {
@@ -21,6 +21,7 @@ class ActivityController extends Controller
     public function index(): View
     {
         $activities = $this->activityService->getAllActivities();
+
         return view('activities.index', compact('activities'));
     }
 
