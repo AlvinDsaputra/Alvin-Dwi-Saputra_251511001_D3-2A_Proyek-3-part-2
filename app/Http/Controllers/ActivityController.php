@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Activity;
+use App\Services\ActivityService;
 use App\Http\Requests\StoreActivityRequest;
 use App\Http\Requests\UpdateActivityRequest;
 use Illuminate\View\View;
@@ -10,9 +11,16 @@ use Illuminate\Http\RedirectResponse;
 
 class ActivityController extends Controller
 {
+    protected ActivityService $activityService;
+
+    public function __construct(ActivityService $activityService)
+    {
+        $this->activityService = $activityService;
+    }
+
     public function index(): View
     {
-        $activities = Activity::latest()->get();
+        $activities = $this->activityService->getAllActivities();
         return view('activities.index', compact('activities'));
     }
 
@@ -23,7 +31,7 @@ class ActivityController extends Controller
 
     public function store(StoreActivityRequest $request): RedirectResponse
     {
-        Activity::create($request->validated());
+        $this->activityService->createActivity($request->validated());
 
         return redirect()->route('activities.index')
             ->with('success', 'Kegiatan berhasil ditambahkan!');
@@ -43,7 +51,7 @@ class ActivityController extends Controller
         UpdateActivityRequest $request,
         Activity $activity
     ): RedirectResponse {
-        $activity->update($request->validated());
+        $this->activityService->updateActivity($activity, $request->validated());
 
         return redirect()->route('activities.index')
             ->with('success', 'Kegiatan berhasil diperbarui!');
@@ -51,7 +59,7 @@ class ActivityController extends Controller
 
     public function destroy(Activity $activity): RedirectResponse
     {
-        $activity->delete();
+        $this->activityService->deleteActivity($activity);
 
         return redirect()->route('activities.index')
             ->with('success', 'Kegiatan berhasil dihapus!');
