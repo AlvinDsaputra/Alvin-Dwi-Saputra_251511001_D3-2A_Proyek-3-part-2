@@ -28,16 +28,25 @@
     @enderror
 </div>
 
+<!-- FIX: Kategori diganti dari <input> menjadi <select> dengan name="category_id" -->
 <div class="mb-3">
-    <label for="category" class="form-label">Kategori</label>
-    <input
-        type="text"
-        id="category"
-        name="category"
-        class="form-control @error('category') is-invalid @enderror"
-        value="{{ old('category', $activity->category ?? '') }}"
+    <label for="category_id" class="form-label">Kategori</label>
+    <select 
+        name="category_id" 
+        id="category_id" 
+        class="form-select @error('category_id') is-invalid @enderror"
     >
-    @error('category')
+        <option value="">-- Pilih Kategori --</option>
+        @foreach($categories as $category)
+            <option 
+                value="{{ $category->id }}" 
+                {{ old('category_id', $activity->category_id ?? '') == $category->id ? 'selected' : '' }}
+            >
+                {{ $category->name }}
+            </option>
+        @endforeach
+    </select>
+    @error('category_id')
         <div class="invalid-feedback">{{ $message }}</div>
     @enderror
 </div>
