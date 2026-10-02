@@ -36,7 +36,7 @@
         <a href="{{ route('activities.create') }}">Tambah Kegiatan Baru</a>
     </p>
 
-    <!-- Form Search, Filter, & Sort (Eksperimen 3) -->
+    <!-- Form Search, Filter, & Sort -->
     <form method="GET" action="{{ route('activities.index') }}" style="margin-bottom: 15px;">
         <!-- Search Title -->
         <input type="text" name="search" placeholder="Cari judul..." value="{{ request('search') }}">
@@ -51,12 +51,13 @@
             @endforeach
         </select>
 
-        <!-- Filter Status -->
+        <!-- Filter Status (Disesuaikan: Planned, Ongoing, Completed, Cancelled) -->
         <select name="status">
             <option value="">-- Semua Status --</option>
             <option value="Planned" {{ request('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
             <option value="Ongoing" {{ request('status') == 'Ongoing' ? 'selected' : '' }}>Ongoing</option>
-            <option value="Done" {{ request('status') == 'Done' ? 'selected' : '' }}>Done</option>
+            <option value="Completed" {{ request('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
+            <option value="Cancelled" {{ request('status') == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
         </select>
 
         <!-- Sorting -->
@@ -72,11 +73,13 @@
     <hr>
 
     @forelse($activities as $activity)
-        <div>
+        <div style="margin-bottom: 15px;">
             <h3>
+                <!-- Menampilkan Kode Kegiatan (Task 1 Requirement) -->
+                <span style="color: #6c757d; font-size: 0.85em;">[{{ $activity->code }}]</span>
                 <a href="{{ route('activities.show', $activity->id) }}">{{ $activity->title }}</a>
             </h3>
-            <p>Kategori: {{ $activity->category->name ?? '-' }}</p>
+            <p>Kategori: <strong>{{ $activity->category->name ?? '-' }}</strong></p>
             <p>Tanggal: {{ \Carbon\Carbon::parse($activity->activity_date)->format('d M Y') }}</p>
             <p>Status: <strong>{{ $activity->status }}</strong></p>
             
@@ -94,25 +97,22 @@
     @endforelse
 
     <!-- Link Navigasi Pagination -->
-    <div style="margin-top: 20px;">
-        <!-- Pagination Custom Ringkas & Bersih -->
-<div style="margin-top: 25px; text-align: center; font-family: sans-serif;">
-    @if ($activities->onFirstPage())
-        <span style="color: #aaa; margin-right: 15px;">« Previous</span>
-    @else
-        <a href="{{ $activities->previousPageUrl() }}" style="margin-right: 15px; font-weight: bold; text-decoration: none; color: #007bff;">« Previous</a>
-    @endif
+    <div style="margin-top: 25px; text-align: center; font-family: sans-serif;">
+        @if ($activities->onFirstPage())
+            <span style="color: #aaa; margin-right: 15px;">« Previous</span>
+        @else
+            <a href="{{ $activities->previousPageUrl() }}" style="margin-right: 15px; font-weight: bold; text-decoration: none; color: #007bff;">« Previous</a>
+        @endif
 
-    <span style="margin: 0 10px;">
-        Halaman <strong>{{ $activities->currentPage() }}</strong> dari <strong>{{ $activities->lastPage() }}</strong>
-    </span>
+        <span style="margin: 0 10px;">
+            Halaman <strong>{{ $activities->currentPage() }}</strong> dari <strong>{{ $activities->lastPage() }}</strong>
+        </span>
 
-    @if ($activities->hasMorePages())
-        <a href="{{ $activities->nextPageUrl() }}" style="margin-left: 15px; font-weight: bold; text-decoration: none; color: #007bff;">Next »</a>
-    @else
-        <span style="color: #aaa; margin-left: 15px;">Next »</span>
-    @endif
-</div>
+        @if ($activities->hasMorePages())
+            <a href="{{ $activities->nextPageUrl() }}" style="margin-left: 15px; font-weight: bold; text-decoration: none; color: #007bff;">Next »</a>
+        @else
+            <span style="color: #aaa; margin-left: 15px;">Next »</span>
+        @endif
     </div>
 </body>
 </html>

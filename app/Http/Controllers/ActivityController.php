@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Requests\StoreActivityRequest;
 use App\Http\Requests\UpdateActivityRequest;
 use App\Models\Activity;
 use App\Models\Category;
 use App\Services\ActivityService;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ActivityController extends Controller
@@ -22,7 +22,7 @@ class ActivityController extends Controller
 
     public function index(Request $request): View
     {
-        $categories = Category::all(); // Rapih: menggunakan import Category di atas
+        $categories = Category::all();
 
         $activities = Activity::with('category')
             ->filter($request->only(['search', 'category_id', 'status', 'sort']))
@@ -35,6 +35,7 @@ class ActivityController extends Controller
     public function create(): View
     {
         $categories = Category::all();
+
         return view('activities.create', compact('categories'));
     }
 
@@ -48,13 +49,15 @@ class ActivityController extends Controller
 
     public function show(Activity $activity): View
     {
+        $activity->load('category');
+
         return view('activities.show', compact('activity'));
     }
 
     public function edit(Activity $activity): View
     {
-        // TAMBAHAN KRUSIAL: Ambil kategori agar dropdown di form edit tidak error
-        $categories = Category::all(); 
+        $categories = Category::all();
+
         return view('activities.edit', compact('activity', 'categories'));
     }
 
@@ -64,7 +67,7 @@ class ActivityController extends Controller
     ): RedirectResponse {
         if ($activity->status === 'Done' && $request->status === 'Planned') {
             return back()->withErrors([
-                'status' => 'Status yang sudah Done tidak boleh dikembalikan ke Planned!'
+                'status' => 'Status yang sudah Done tidak boleh dikembalikan ke Planned!',
             ])->withInput();
         }
 

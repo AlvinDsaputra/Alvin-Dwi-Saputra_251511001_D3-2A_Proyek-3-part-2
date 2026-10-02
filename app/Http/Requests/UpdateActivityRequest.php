@@ -13,12 +13,15 @@ class UpdateActivityRequest extends FormRequest
 
     public function rules(): array
     {
+        $activityId = $this->route('activity')->id;
+        
         return [
-            'title' => 'required|string|min:5|max:100',
-            'activity_date' => 'required|date',
-            'category' => 'required|string|max:50',
-            'status' => 'required|in:Planned,Ongoing,Done',
-            'description' => 'nullable|string',
+        'category_id'   => 'required|exists:categories,id',
+        'code'          => 'required|string|unique:activities,code,' . $activityId, 
+        'title'         => 'required|string|max:255',
+        'description'   => 'nullable|string',
+        'activity_date' => 'required|date',
+        'status'        => 'required|in:Planned,Ongoing,Completed,Cancelled',
         ];
     }
 }

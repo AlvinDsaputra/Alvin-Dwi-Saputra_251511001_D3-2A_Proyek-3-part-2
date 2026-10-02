@@ -1,5 +1,22 @@
 @csrf
 
+<!-- 1. Kode Kegiatan -->
+<div class="mb-3">
+    <label for="code" class="form-label">Kode Kegiatan</label>
+    <input
+        type="text"
+        id="code"
+        name="code"
+        class="form-control @error('code') is-invalid @enderror"
+        value="{{ old('code', $activity->code ?? '') }}"
+        placeholder="Contoh: ACT-001"
+    >
+    @error('code')
+        <div class="invalid-feedback">{{ $message }}</div>
+    @enderror
+</div>
+
+<!-- 2. Judul Kegiatan -->
 <div class="mb-3">
     <label for="title" class="form-label">Judul</label>
     <input
@@ -14,6 +31,7 @@
     @enderror
 </div>
 
+<!-- 3. Tanggal Kegiatan -->
 <div class="mb-3">
     <label for="activity_date" class="form-label">Tanggal Kegiatan</label>
     <input
@@ -28,7 +46,7 @@
     @enderror
 </div>
 
-<!-- FIX: Kategori diganti dari <input> menjadi <select> dengan name="category_id" -->
+<!-- 4. Kategori (Relasi Category) -->
 <div class="mb-3">
     <label for="category_id" class="form-label">Kategori</label>
     <select 
@@ -51,11 +69,12 @@
     @enderror
 </div>
 
+<!-- 5. Status -->
 <div class="mb-3">
     <label for="status" class="form-label">Status</label>
     <select name="status" id="status" class="form-select @error('status') is-invalid @enderror">
         <option value="">-- Pilih Status --</option>
-        @foreach(['Planned', 'Ongoing', 'Done'] as $statusOption)
+        @foreach(['Planned', 'Ongoing', 'Completed', 'Cancelled'] as $statusOption)
             <option value="{{ $statusOption }}" {{ old('status', $activity->status ?? '') == $statusOption ? 'selected' : '' }}>
                 {{ $statusOption }}
             </option>
@@ -66,6 +85,7 @@
     @enderror
 </div>
 
+<!-- 6. Deskripsi -->
 <div class="mb-3">
     <label for="description" class="form-label">Deskripsi</label>
     <textarea

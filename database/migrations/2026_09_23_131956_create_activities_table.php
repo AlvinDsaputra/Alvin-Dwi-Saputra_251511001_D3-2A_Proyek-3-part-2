@@ -13,8 +13,9 @@ return new class extends Migration
 {
     Schema::create('activities', function (Blueprint $table) {
         $table->id();
-        $table->foreignId('category_id')->constrained()->cascadeOnDelete(); // Gunakan ini
+        $table->foreignId('category_id')->constrained()->onDelete('restrict'); 
         $table->string('title');
+        $table->string('code')->unique();
         $table->text('description')->nullable();
         $table->date('activity_date');
         $table->string('status')->default('Planned');
