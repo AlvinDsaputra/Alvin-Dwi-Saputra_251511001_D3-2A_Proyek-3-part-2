@@ -2,28 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar Kegiatan</title>
-
-    <style>
-        /* Mengontrol ukuran panah SVG agar proporsional */
-        nav svg {
-            width: 16px !important;
-            height: 16px !important;
-            vertical-align: middle;
-        }
-
-        /* Merapikan tampilan link pagination */
-        nav div {
-            display: inline-block;
-        }
-
-        nav a, nav span {
-            padding: 6px 12px;
-            text-decoration: none;
-            color: #007bff;
-        }
-    </style>
 </head>
 <body>
     <h2>Daftar Kegiatan</h2>
@@ -32,35 +11,34 @@
         <p style="color: green;">{{ session('success') }}</p>
     @endif
 
-    <p>
-        <a href="{{ route('activities.create') }}">Tambah Kegiatan Baru</a>
-    </p>
+    @if($errors->has('error'))
+        <p style="color: red;">{{ $errors->first('error') }}</p>
+    @endif
+
+    <p><a href="{{ route('activities.create') }}">Tambah Kegiatan Baru (Draft)</a></p>
 
     <!-- Form Search, Filter, & Sort -->
     <form method="GET" action="{{ route('activities.index') }}" style="margin-bottom: 15px;">
-        <!-- Search Title -->
-        <input type="text" name="search" placeholder="Cari judul..." value="{{ request('search') }}">
+        <!-- Search Code atau Title -->
+        <input type="text" name="search" placeholder="Cari kode atau judul..." value="{{ request('search') }}">
 
         <!-- Filter Category -->
         <select name="category_id">
             <option value="">-- Semua Kategori --</option>
             @foreach($categories as $cat)
-                <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
-                    {{ $cat->name }}
-                </option>
+                <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
             @endforeach
         </select>
 
-        <!-- Filter Status (Disesuaikan: Planned, Ongoing, Completed, Cancelled) -->
+        <!-- Filter Status (draft, published, completed) -->
         <select name="status">
             <option value="">-- Semua Status --</option>
-            <option value="Planned" {{ request('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
-            <option value="Ongoing" {{ request('status') == 'Ongoing' ? 'selected' : '' }}>Ongoing</option>
-            <option value="Completed" {{ request('status') == 'Completed' ? 'selected' : '' }}>Completed</option>
-            <option value="Cancelled" {{ request('status') == 'Cancelled' ? 'selected' : '' }}>Cancelled</option>
+            <option value="draft" {{ request('status') == 'draft' ? 'selected' : '' }}>Draft</option>
+            <option value="published" {{ request('status') == 'published' ? 'selected' : '' }}>Published</option>
+            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
         </select>
 
-        <!-- Sorting -->
+        <!-- Sort -->
         <select name="sort">
             <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
             <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Terlama</option>
@@ -75,44 +53,41 @@
     @forelse($activities as $activity)
         <div style="margin-bottom: 15px;">
             <h3>
-                <!-- Menampilkan Kode Kegiatan (Task 1 Requirement) -->
-                <span style="color: #6c757d; font-size: 0.85em;">[{{ $activity->code }}]</span>
+                <span style="color: #666;">[{{ $activity->code }}]</span>
                 <a href="{{ route('activities.show', $activity->id) }}">{{ $activity->title }}</a>
             </h3>
-            <p>Kategori: <strong>{{ $activity->category->name ?? '-' }}</strong></p>
+            <p>Kategori: {{ $activity->category->name ?? '-' }}</p>
             <p>Tanggal: {{ \Carbon\Carbon::parse($activity->activity_date)->format('d M Y') }}</p>
-            <p>Status: <strong>{{ $activity->status }}</strong></p>
+            <p>Status: <strong>{{ ucfirst($activity->status) }}</strong></p>
             
+            <!-- Tombol Aksi Transisi Status (Task 2) -->
+            @if($activity->status === 'draft')
+                <form action="{{ route('activities.publish', $activity->id) }}" method="POST" style="display:inline;">
+                    @csrf @method('PATCH')
+                    <button type="submit" style="background: #0d6efd; color: white;">Publish</button>
+                </form>
+            @elseif($activity->status === 'published')
+                <form action="{{ route('activities.complete', $activity->id) }}" method="POST" style="display:inline;">
+                    @csrf @method('PATCH')
+                    <button type="submit" style="background: #198754; color: white;">Complete</button>
+                </form>
+            @endif
+
             <a href="{{ route('activities.edit', $activity->id) }}">Edit</a>
 
             <form action="{{ route('activities.destroy', $activity->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Yakin hapus data ini?');">
-                @csrf
-                @method('DELETE')
+                @csrf @method('DELETE')
                 <button type="submit">Hapus</button>
             </form>
         </div>
         <hr>
     @empty
-        <p>Belum ada kegiatan.</p>
+        <p>Belum ada kegiatan yang sesuai.</p>
     @endforelse
 
-    <!-- Link Navigasi Pagination -->
-    <div style="margin-top: 25px; text-align: center; font-family: sans-serif;">
-        @if ($activities->onFirstPage())
-            <span style="color: #aaa; margin-right: 15px;">« Previous</span>
-        @else
-            <a href="{{ $activities->previousPageUrl() }}" style="margin-right: 15px; font-weight: bold; text-decoration: none; color: #007bff;">« Previous</a>
-        @endif
-
-        <span style="margin: 0 10px;">
-            Halaman <strong>{{ $activities->currentPage() }}</strong> dari <strong>{{ $activities->lastPage() }}</strong>
-        </span>
-
-        @if ($activities->hasMorePages())
-            <a href="{{ $activities->nextPageUrl() }}" style="margin-left: 15px; font-weight: bold; text-decoration: none; color: #007bff;">Next »</a>
-        @else
-            <span style="color: #aaa; margin-left: 15px;">Next »</span>
-        @endif
+    <!-- Link Pagination -->
+    <div style="margin-top: 20px;">
+        {{ $activities->links() }}
     </div>
 </body>
 </html>

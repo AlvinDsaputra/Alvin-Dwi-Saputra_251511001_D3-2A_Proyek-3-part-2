@@ -18,7 +18,7 @@ return new class extends Migration
         $table->string('code')->unique();
         $table->text('description')->nullable();
         $table->date('activity_date');
-        $table->string('status')->default('Planned');
+        $table->string('status')->default('draft');
         $table->timestamps();
         $table->softDeletes(); 
     });
