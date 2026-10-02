@@ -10,6 +10,11 @@
     <div class="container mt-4" style="max-width: 600px;">
         <h2>Edit Kegiatan</h2>
 
+        <p>
+            <a href="{{ route('activities.create') }}">Tambah Kegiatan Baru</a> | 
+            <a href="{{ route('activities.trash') }}">Lihat Sampah (Trash)</a>
+        </p>
+
         <p><a href="{{ route('activities.index') }}" class="text-decoration-none">« Kembali ke Daftar Kegiatan</a></p>
 
         <!-- Pesan Error Validasi Utama -->
